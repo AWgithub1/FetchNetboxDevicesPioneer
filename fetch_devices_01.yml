@@ -45,7 +45,7 @@
     - name: Convert NetBox devices JSON to HTML
       template:
         src: templates/netbox_devices.html.j2
-        dest: "{{ ansible_env.HOME }}/reports/devices.html"
+        dest: "{{ ansible_user_dir }}/reports/devices.html"
       delegate_to: localhost
       vars:
         devices: "{{ netbox_response.json.results }}"
