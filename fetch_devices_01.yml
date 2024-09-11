@@ -11,7 +11,7 @@
   tasks:
     - name: Ensure the /home/user1/reports directory exists
       file:
-        path: {{ output_file }}/reports
+        path: {{ ansible_user_dir }}/reports
         state: directory
         mode: '0755'
       delegate_to: localhost
