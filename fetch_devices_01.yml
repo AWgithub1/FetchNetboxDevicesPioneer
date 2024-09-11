@@ -27,6 +27,7 @@
     - name: Debug NetBox devices response
       debug:
         var: netbox_response.json.results
+      delegate_to: localhost
 
     - name: Save NetBox devices to a JSON file
       copy:
