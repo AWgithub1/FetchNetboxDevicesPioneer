@@ -1,7 +1,7 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
   hosts: aap.manny.local
-  gather_facts: no
+  gather_facts: true
 
   vars:
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
@@ -45,7 +45,7 @@
     - name: Convert NetBox devices JSON to HTML
       template:
         src: templates/netbox_devices.html.j2
-        dest: "/home/user1/reports/devices.html"
+        dest: "{{ ansible_env.HOME }}/reports/devices.html"
       delegate_to: localhost
       vars:
         devices: "{{ netbox_response.json.results }}"
