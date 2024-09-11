@@ -1,6 +1,6 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
-  hosts: localhost
+  hosts: aap.manny.local
   gather_facts: no
 
   vars:
@@ -9,7 +9,6 @@
     output_file: "/home/user1/reports/devices.html"
 
   tasks:
-
     - name: Ensure the /home/user1/reports directory exists
       file:
         path: /home/user1/reports
