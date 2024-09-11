@@ -9,21 +9,6 @@
     output_file: "/home/user1/reports/devices.html"
 
   tasks:
-    - name: Print the current user
-      command: whoami
-      register: whoami_output
-
-    - name: Print the current user output
-      debug:
-        var: whoami_output.stdout
-
-    - name: Print the current working directory
-      command: pwd
-      register: pwd_output
-
-    - name: Print the current working directory output
-      debug:
-        var: pwd_output.stdout
 
     - name: Ensure the /home/user1/reports directory exists
       file:
@@ -48,6 +33,7 @@
       copy:
         content: "{{ netbox_response.content }}"
         dest: "/tmp/netbox_devices.json"
+      delegate_to: localhost
 
     - name: Debug the devices variable before template
       debug:
@@ -57,19 +43,9 @@
       template:
         src: templates/netbox_devices.html.j2
         dest: "{{ output_file }}"
+      delegate_to: localhost
       vars:
         devices: "{{ netbox_response.json.results }}"
         register: template_result
 
-    - name: Debug the result of converting JSON to HTML
-      debug:
-        var: template_result
 
-    - name: Check if HTML file exists
-      stat:
-        path: "{{ output_file }}"
-      register: html_file_stat
-
-    - name: Debug the result of HTML file existence check
-      debug:
-        var: html_file_stat
