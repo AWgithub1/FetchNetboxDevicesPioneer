@@ -11,7 +11,7 @@
   tasks:
     - name: Ensure the /home/user1/reports directory exists
       file:
-        path: /home/user1/reports
+        path: {{ ansible_user_dir }}/reports
         state: directory
         mode: '0755'
       delegate_to: localhost
@@ -45,7 +45,7 @@
     - name: Convert NetBox devices JSON to HTML
       template:
         src: templates/netbox_devices.html.j2
-        dest: "{{ output_file }}"
+        dest: "{{ ansible_user_dir }}/reports/devices.html"
       delegate_to: localhost
       vars:
         devices: "{{ netbox_response.json.results }}"
