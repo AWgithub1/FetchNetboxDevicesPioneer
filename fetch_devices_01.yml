@@ -14,7 +14,7 @@
         path: /home/user1/reports
         state: directory
         mode: '0755'
-      delegate_to: localhost
+      delegate_to: aap.manny.local
 
     - name: Fetch devices from NetBox
       uri:
@@ -24,29 +24,29 @@
           Authorization: "Token {{ netbox_token }}"
         return_content: yes
       register: netbox_response
-      delegate_to: localhost
+      delegate_to: aap.manny.local
 
     - name: Debug NetBox devices response
       debug:
         var: netbox_response.json.results
-      delegate_to: localhost
+      delegate_to: aap.manny.local
 
     - name: Save NetBox devices to a JSON file
       copy:
         content: "{{ netbox_response.content }}"
         dest: "/tmp/netbox_devices.json"
-      delegate_to: localhost
+      delegate_to: aap.manny.local
 
     - name: Debug the devices variable before template
       debug:
         var: netbox_response.json.results
-      delegate_to: localhost
+      delegate_to: aap.manny.local
 
     - name: Convert NetBox devices JSON to HTML
       template:
         src: templates/netbox_devices.html.j2
         dest: "{{ ansible_user_dir }}/reports/devices.html"
-      delegate_to: localhost
+      delegate_to: aap.manny.local
       vars:
         devices: "{{ netbox_response.json.results }}"
         register: template_result
