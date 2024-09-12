@@ -6,12 +6,12 @@
   vars:
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
     netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
-    output_file: "/home/user1/reports/devices.html"
+    output_file: "/home/runner/reports/devices.html"
 
   tasks:
     - name: Ensure the /home/user1/reports directory exists
       file:
-        path: /home/user1/reports
+        path: /home/runner/reports
         state: directory
         mode: '0755'
 
@@ -40,7 +40,7 @@
     - name: Convert NetBox devices JSON to HTML
       template:
         src: templates/netbox_devices.html.j2
-        dest: "{{ ansible_user_dir }}/reports/devices.html"
+        dest: "{{ output_file }}"
       vars:
         devices: "{{ netbox_response.json.results }}"
         register: template_result
