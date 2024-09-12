@@ -1,6 +1,6 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
-  hosts: localhost
+  hosts: gitstack
   gather_facts: true
 
   vars:
