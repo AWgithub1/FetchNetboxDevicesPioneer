@@ -1,6 +1,6 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
-  hosts: 192.168.116.131
+  hosts: aap.manny.local
   gather_facts: true
 
   vars:
