@@ -32,6 +32,16 @@
       copy:
         content: "{{ netbox_response.content }}"
         dest: "/tmp/netbox_devices.json"
+        mode: '0644'
+
+    - name: Ensure permanent directory exists
+      file:
+        path: /home/runner/netbox_data
+        state: directory
+        mode: '0755'
+
+    - name: Move JSON file to a permanent location
+      command: mv /tmp/netbox_devices.json /home/runner/netbox_data/netbox_devices.json
 
     - name: Debug the devices variable before template
       debug:
