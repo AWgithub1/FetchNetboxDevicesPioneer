@@ -6,12 +6,12 @@
   vars:
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
     netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
-    output_file: "/home/runner/reports/devices.html"
+    output_file: "/home/user1/reports/devices.html"
 
   tasks:
     - name: Ensure the /home/user1/reports directory exists
       file:
-        path: /home/runner/reports
+        path: /home/user1/reports
         state: directory
         mode: '0755'
 
@@ -36,12 +36,12 @@
 
     - name: Ensure permanent directory exists
       file:
-        path: /home/runner/netbox_data
+        path: /home/user1/netbox_data
         state: directory
         mode: '0755'
 
     - name: Move JSON file to a permanent location
-      command: mv /tmp/netbox_devices.json /home/runner/netbox_data/netbox_devices.json
+      command: mv /tmp/netbox_devices.json /home/user1/netbox_data/netbox_devices.json
 
     - name: Debug the devices variable before template
       debug:
