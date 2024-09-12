@@ -1,6 +1,6 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
-  hosts: gitstack
+  hosts: aap.manny.local
   gather_facts: true
 
   vars:
