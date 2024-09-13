@@ -95,7 +95,7 @@
 
     - name: Add and commit changes to GitHub
       command:
-        cmd: |
+        shell: |
           cd /tmp/repo
           git add netbox_configurations.json
           git commit -m "Update NetBox configurations" --allow-empty
