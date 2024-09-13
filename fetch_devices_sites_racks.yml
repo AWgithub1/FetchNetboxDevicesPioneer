@@ -1,5 +1,5 @@
 ---
-- name: Fetch configurations from NetBox and save to local HTML file
+- name: Fetch configurations from NetBox and push to GitHub
   hosts: localhost
   gather_facts: false
   collections:
@@ -7,21 +7,29 @@
   vars:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
-    output_file: "/home/user1/reports/netbox_configurations.html"
+    output_file: "/tmp/netbox_configurations.json"
+    git_repo_path: "/home/user1/netbox_fetch_push/"
     target_host: "node3"  # Replace with your target host
+    git_repo_url: "https://github.com/ayoemman/netboxinventory_1.git"  # Replace with your GitHub repository URL
+    git_branch: "main"  # Replace with your desired branch
+    git_user_name: "{{ git_user_name }}"
+    git_user_email: "{{ git_user_email }}"
+    github_token: "{{ github_token }}"
 
   tasks:
-    - name: Ensure the /home/user1/reports directory exists on target host
+    - name: Ensure the git repository directory exists
       file:
-        path: /home/user1/reports
+        path: "{{ git_repo_path }}"
         state: directory
-        mode: '0755'
       delegate_to: "{{ target_host }}"
-      register: report_dir_result
 
-    - name: Debug report directory result
-      debug:
-        var: report_dir_result
+    - name: Clone the repository if not present
+      git:
+        repo: "https://github.com/ayoemman/netboxinventory_1.git"
+        dest: "{{ git_repo_path }}"
+        version: main
+        update: yes
+      delegate_to: "{{ target_host }}"
 
     - name: Fetch devices from NetBox
       uri:
@@ -56,7 +64,7 @@
       register: racks_response
       failed_when: racks_response.status != 200
 
-    - name: Save configurations to JSON files on local machine
+    - name: Save configurations to JSON file
       copy:
         content: |
           {
@@ -64,7 +72,7 @@
             "sites": {{ sites_response.content | to_nice_json }},
             "racks": {{ racks_response.content | to_nice_json }}
           }
-        dest: "/tmp/netbox_configurations.json"
+        dest: "{{ output_file }}"
         mode: '0644'
       register: json_save_result
       failed_when: json_save_result is not defined
@@ -72,82 +80,64 @@
     - name: Debug JSON save result
       debug:
         var: json_save_result
+    
+    - name: Change to the git repository directory
+      command: chdir={{ git_repo_path }} git status
 
-    - name: Ensure permanent directory exists on target host
-      file:
-        path: /home/user1/netbox_data
-        state: directory
-        mode: '0755'
-      delegate_to: "{{ target_host }}"
-      register: perm_dir_result
+    - name: Set remote URL to use personal access token
+      command:
+        cmd: git remote set-url origin https://{{ github_token }}@github.com/{{ git_user_name }}/netboxinventory_1.git
+        chdir: "{{ git_repo_path }}"
+      register: git_remote_set_url_result
 
-    - name: Debug permanent directory result
+    - name: Debug remote URL change result
       debug:
-        var: perm_dir_result
+        var: git_remote_set_url_result
 
-    - name: Copy JSON file to target host
-      copy:
-        src: /tmp/netbox_configurations.json
-        dest: /tmp/netbox_configurations.json
+    - name: Ensure repository is cloned
+      git:
+        repo: "{{ git_repo_url }}"
+        dest: /tmp/repo
+        version: "{{ git_branch }}"
+        update: yes
+      register: git_clone_result
       delegate_to: "{{ target_host }}"
+
+    - name: Copy JSON file to repository directory
+      copy:
+        src: "{{ output_file }}"
+        dest: "{{ git_repo_path }}"
       register: copy_json_result
+      delegate_to: "{{ target_host }}"
 
     - name: Debug copy JSON file result
       debug:
         var: copy_json_result
 
-    - name: Move JSON file to a permanent location on target host
-      command: mv /tmp/netbox_configurations.json /home/user1/netbox_data/netbox_configurations.json
-      register: move_json_result
-      failed_when: move_json_result.rc != 0
+    - name: Configure git user name
+      command:
+        cmd: git config --global user.name "{{ git_user_name }}"
+      delegate_to: localhost
+
+    - name: Configure git user email
+      command:
+        cmd: git config --global user.email "{{ git_user_email }}"
+      delegate_to: localhost
+
+    - name: Add new files to git
+      command:
+        cmd: git add .
+        chdir: "{{ git_repo_path }}"
+
+    - name: Commit changes to git
+      command:
+        cmd: git commit -m "Add NetBox data" --allow-empty
+        chdir: "{{ git_repo_path }}"
+      register: git_commit_result
+
+    - name: Push changes to GitHub
+      command:
+        #cmd: git push
+        cmd: git push -u origin "{{ git_branch }}"
+        chdir: "{{ git_repo_path }}"
       delegate_to: "{{ target_host }}"
-
-    - name: Debug move JSON file result
-      debug:
-        var: move_json_result
-
-    - name: Convert NetBox configurations JSON to HTML on target host
-      template:
-        src: templates/netbox_configurations.html.j2
-        dest: "{{ output_file }}"
-      vars:
-        devices: "{{ devices_response.json.results }}"
-        sites: "{{ sites_response.json.results }}"
-        racks: "{{ racks_response.json.results }}"
-      register: template_result
-      failed_when: template_result is failed
-      delegate_to: "{{ target_host }}"
-
-    - name: Debug template result
-      debug:
-        var: template_result
-
-    - name: Verify HTML file creation
-      stat:
-        path: /home/user1/reports/netbox_configurations.html
-      register: html_file_check
-      delegate_to: "{{ target_host }}"
-
-    - name: Debug HTML file check
-      debug:
-        var: html_file_check
-
-    - name: Verify netbox_data directory creation
-      stat:
-        path: /home/user1/netbox_data
-      register: netbox_data_dir_check
-      delegate_to: "{{ target_host }}"
-
-    - name: Debug netbox_data directory check
-      debug:
-        var: netbox_data_dir_check
-
-    - name: Verify JSON file move
-      stat:
-        path: /home/user1/netbox_data/netbox_configurations.json
-      register: json_file_check
-      delegate_to: "{{ target_host }}"
-
-    - name: Debug JSON file check
-      debug:
-        var: json_file_check
