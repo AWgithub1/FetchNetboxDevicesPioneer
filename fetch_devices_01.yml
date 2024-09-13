@@ -66,3 +66,7 @@
       register: template_result
       failed_when: template_result is failed
       delegate_to: "{{ target_host }}"
+
+    - name: Debug template result
+      debug:
+        var: template_result
