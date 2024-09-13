@@ -21,6 +21,7 @@
       file:
         path: "{{ git_repo_path }}"
         state: directory
+      delegate_to: "{{ target_host }}"
 
     - name: Clone the repository if not present
       git:
@@ -28,6 +29,7 @@
         dest: "{{ git_repo_path }}"
         version: main
         update: yes
+      delegate_to: "{{ target_host }}"
 
     - name: Fetch devices from NetBox
       uri:
@@ -81,6 +83,7 @@
     
     - name: Change to the git repository directory
       command: chdir={{ git_repo_path }} git status
+      delegate_to: "{{ target_host }}"
 
     - name: Set remote URL to use personal access token
       command:
@@ -99,12 +102,14 @@
         version: "{{ git_branch }}"
         update: yes
       register: git_clone_result
+      delegate_to: "{{ target_host }}"
 
     - name: Copy JSON file to repository directory
       copy:
         src: "{{ output_file }}"
         dest: "{{ git_repo_path }}"
       register: copy_json_result
+      delegate_to: "{{ target_host }}"
 
     - name: Debug copy JSON file result
       debug:
@@ -113,17 +118,18 @@
     - name: Configure git user name
       command:
         cmd: git config --global user.name "{{ git_user_name }}"
-      delegate_to: localhost
+      delegate_to: "{{ target_host }}"
 
     - name: Configure git user email
       command:
         cmd: git config --global user.email "{{ git_user_email }}"
-      delegate_to: localhost
+      delegate_to: "{{ target_host }}"
 
     - name: Add new files to git
       command:
         cmd: git add .
         chdir: "{{ git_repo_path }}"
+      delegate_to: "{{ target_host }}"
 
     - name: Commit changes to git
       command:
@@ -136,4 +142,4 @@
         #cmd: git push
         cmd: git push -u origin "{{ git_branch }}"
         chdir: "{{ git_repo_path }}"
-      delegate_to: localhost
+      delegate_to: "{{ target_host }}"
