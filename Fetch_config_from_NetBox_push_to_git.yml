@@ -83,11 +83,14 @@
       debug:
         var: copy_json_result
 
-    - name: Configure git user
+    - name: Configure git user name
       command:
-        cmd: |
-          git config --global user.name "{{ git_user_name }}"
-          git config --global user.email "{{ git_user_email }}"
+        cmd: git config --global user.name "{{ git_user_name }}"
+      delegate_to: localhost
+
+    - name: Configure git user email
+      command:
+        cmd: git config --global user.email "{{ git_user_email }}"
       delegate_to: localhost
 
     - name: Add and commit changes to GitHub
