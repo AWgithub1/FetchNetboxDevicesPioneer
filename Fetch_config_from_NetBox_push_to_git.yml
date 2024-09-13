@@ -84,25 +84,18 @@
         var: copy_json_result
 
     - name: Configure git user name
-      command:
-        cmd: git config --global user.name "{{ git_user_name }}"
-      delegate_to: localhost
+      shell: git config --global user.name "{{ git_user_name }}"
 
     - name: Configure git user email
-      command:
-        cmd: git config --global user.email "{{ git_user_email }}"
-      delegate_to: localhost
+      shell: git config --global user.email "{{ git_user_email }}"
 
     - name: Add and commit changes to GitHub
-      command:
-        cmd: |
-          cd /tmp/repo
-          git add netbox_configurations.json
-          git commit -m "Update NetBox configurations" --allow-empty
-      delegate_to: localhost
-      register: git_commit_result
+      shell: |
+        cd /tmp/repo
+        git add netbox_configurations.json
+        git commit -m "Update NetBox configurations" --allow-empty
 
     - name: Push changes to GitHub
-      command:
-        cmd: git push -u origin "{{ git_branch }}"
-      delegate_to: localhost
+      shell: |
+        cd /tmp/repo
+        git push -u origin "{{ git_branch }}"
