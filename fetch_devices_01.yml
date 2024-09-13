@@ -8,13 +8,15 @@
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
     netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
     output_file: "/home/user1/reports/devices.html"
+    target_host: "aap.manny.local"  # Replace with your target host
 
   tasks:
-    - name: Ensure the /home/user1/reports directory exists
+    - name: Ensure the /home/user1/reports directory exists on target host
       file:
         path: /home/user1/reports
         state: directory
         mode: '0755'
+      delegate_to: "{{ target_host }}"
 
     - name: Fetch devices from NetBox
       uri:
@@ -38,22 +40,24 @@
         mode: '0644'
       failed_when: netbox_response.content is not defined
 
-    - name: Ensure permanent directory exists
+    - name: Ensure permanent directory exists on target host
       file:
         path: /home/user1/netbox_data
         state: directory
         mode: '0755'
+      delegate_to: "{{ target_host }}"
 
-    - name: Move JSON file to a permanent location
+    - name: Move JSON file to a permanent location on target host
       command: mv /tmp/netbox_devices.json /home/user1/netbox_data/netbox_devices.json
       failed_when: result.rc != 0
       register: result
+      delegate_to: "{{ target_host }}"
 
     - name: Debug the devices variable before template
       debug:
         var: netbox_response.json.results
 
-    - name: Convert NetBox devices JSON to HTML
+    - name: Convert NetBox devices JSON to HTML on target host
       template:
         src: templates/netbox_devices.html.j2
         dest: "{{ output_file }}"
@@ -61,4 +65,4 @@
         devices: "{{ netbox_response.json.results }}"
       register: template_result
       failed_when: template_result is failed
-
+      delegate_to: "{{ target_host }}"
