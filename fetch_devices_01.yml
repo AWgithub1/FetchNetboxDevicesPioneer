@@ -8,7 +8,7 @@
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
     netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
     output_file: "/home/user1/reports/devices.html"
-    target_host: "aap.manny.local"  # Replace with your target host
+    target_host: "node3"  # Replace with your target host
 
   tasks:
     - name: Ensure the /home/user1/reports directory exists on target host
