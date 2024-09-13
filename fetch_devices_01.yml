@@ -1,6 +1,6 @@
 ---
 - name: Fetch devices from NetBox and save to local HTML file
-  hosts: aap.manny.local
+  hosts: localhost
   gather_facts: true
   collections:
     - ansible.builtin
