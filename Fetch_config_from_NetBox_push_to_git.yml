@@ -90,10 +90,12 @@
         cmd: git remote set-url origin https://{{ github_token }}@github.com/{{ git_user_name }}/netboxinventory_1.git
         chdir: "{{ git_repo_path }}"
       register: git_remote_set_url_result
+      delegate_to: "{{ target_host }}"
 
     - name: Debug remote URL change result
       debug:
         var: git_remote_set_url_result
+      delegate_to: "{{ target_host }}"
 
     - name: Ensure repository is cloned
       git:
