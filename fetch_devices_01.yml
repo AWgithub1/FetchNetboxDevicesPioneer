@@ -2,7 +2,8 @@
 - name: Fetch devices from NetBox and save to local HTML file
   hosts: aap.manny.local
   gather_facts: true
-
+  collections:
+    - ansible.builtin
   vars:
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
     netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
