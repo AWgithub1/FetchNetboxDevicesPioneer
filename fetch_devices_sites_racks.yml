@@ -5,7 +5,7 @@
   collections:
     - ansible.builtin
   vars:
-    netbox_url: "https://mnqh6527.cloud.netboxapp.com"  # Set your NetBox API URL
+    netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     output_file: "/home/user1/reports/netbox_configurations.html"
     target_host: "node3"  # Replace with your target host
