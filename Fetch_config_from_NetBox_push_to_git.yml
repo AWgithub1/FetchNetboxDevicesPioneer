@@ -17,11 +17,6 @@
     github_token: "{{ github_token }}"
 
   tasks:
-    - name: Ensure output directory exists
-      file:
-        path: "{{ output_dir }}"
-        state: directory
-
     - name: Ensure the git repository directory exists
       file:
         path: "{{ git_repo_path }}"
