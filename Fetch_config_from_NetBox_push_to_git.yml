@@ -103,6 +103,7 @@
         dest: /tmp/repo
         version: "{{ git_branch }}"
         update: yes
+        force: yes
       register: git_clone_result
       delegate_to: "{{ target_host }}"
 
