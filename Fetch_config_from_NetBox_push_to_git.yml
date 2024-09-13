@@ -138,10 +138,10 @@
         cmd: git commit -m "Add NetBox data" --allow-empty
         chdir: "{{ git_repo_path }}"
       register: git_commit_result
+      delegate_to: "{{ target_host }}"
 
     - name: Push changes to GitHub
       command:
-        #cmd: git push
         cmd: git push -u origin "{{ git_branch }}"
         chdir: "{{ git_repo_path }}"
       delegate_to: "{{ target_host }}"
