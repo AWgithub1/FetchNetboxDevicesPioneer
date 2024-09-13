@@ -29,6 +29,7 @@
         dest: "{{ git_repo_path }}"
         version: main
         update: yes
+        force: yes
       delegate_to: "{{ target_host }}"
 
     - name: Fetch devices from NetBox
@@ -103,7 +104,6 @@
         dest: /tmp/repo
         version: "{{ git_branch }}"
         update: yes
-        force: yes
       register: git_clone_result
       delegate_to: "{{ target_host }}"
 
