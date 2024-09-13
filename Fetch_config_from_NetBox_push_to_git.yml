@@ -8,13 +8,32 @@
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     output_file: "/tmp/netbox_configurations.json"
+    git_repo_path: "/home/user1/netbox_fetch_push/"
     target_host: "node3"  # Replace with your target host
     git_repo_url: "https://github.com/ayoemman/netboxinventory_1.git"  # Replace with your GitHub repository URL
     git_branch: "main"  # Replace with your desired branch
     git_user_name: "{{ git_user_name }}"
     git_user_email: "{{ git_user_email }}"
+    github_token: "{{ github_token }}"
 
   tasks:
+    - name: Ensure output directory exists
+      file:
+        path: "{{ output_dir }}"
+        state: directory
+
+    - name: Ensure the git repository directory exists
+      file:
+        path: "{{ git_repo_path }}"
+        state: directory
+
+    - name: Clone the repository if not present
+      git:
+        repo: "https://github.com/ayoemman/netboxinventory_1.git"
+        dest: "{{ git_repo_path }}"
+        version: main
+        update: yes
+
     - name: Fetch devices from NetBox
       uri:
         url: "{{ netbox_url }}/api/dcim/devices/"
@@ -64,6 +83,19 @@
     - name: Debug JSON save result
       debug:
         var: json_save_result
+    
+    - name: Change to the git repository directory
+      command: chdir={{ git_repo_path }} git status
+
+    - name: Set remote URL to use personal access token
+      command:
+        cmd: git remote set-url origin https://{{ github_token }}@github.com/{{ git_user_name }}/netboxinventory_1.git
+        chdir: "{{ git_repo_path }}"
+      register: git_remote_set_url_result
+
+    - name: Debug remote URL change result
+      debug:
+        var: git_remote_set_url_result
 
     - name: Ensure repository is cloned
       git:
@@ -76,7 +108,7 @@
     - name: Copy JSON file to repository directory
       copy:
         src: "{{ output_file }}"
-        dest: /tmp/repo/netbox_configurations.json
+        dest: "{{ git_repo_path }}"
       register: copy_json_result
 
     - name: Debug copy JSON file result
@@ -84,18 +116,29 @@
         var: copy_json_result
 
     - name: Configure git user name
-      shell: git config --global user.name "{{ git_user_name }}"
+      command:
+        cmd: git config --global user.name "{{ git_user_name }}"
+      delegate_to: localhost
 
     - name: Configure git user email
-      shell: git config --global user.email "{{ git_user_email }}"
+      command:
+        cmd: git config --global user.email "{{ git_user_email }}"
+      delegate_to: localhost
 
-    - name: Add and commit changes to GitHub
-      shell: |
-        cd /tmp/repo
-        git add netbox_configurations.json
-        git commit -m "Update NetBox configurations" --allow-empty
+    - name: Add new files to git
+      command:
+        cmd: git add .
+        chdir: "{{ git_repo_path }}"
+
+    - name: Commit changes to git
+      command:
+        cmd: git commit -m "Add NetBox data" --allow-empty
+        chdir: "{{ git_repo_path }}"
+      register: git_commit_result
 
     - name: Push changes to GitHub
-      shell: |
-        cd /tmp/repo
-        git push -u origin "{{ git_branch }}"
+      command:
+        #cmd: git push
+        cmd: git push -u origin "{{ git_branch }}"
+        chdir: "{{ git_repo_path }}"
+      delegate_to: localhost
