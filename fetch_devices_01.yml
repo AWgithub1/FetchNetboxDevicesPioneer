@@ -6,7 +6,7 @@
     - ansible.builtin
   vars:
     netbox_url: "https://mnqh6527.cloud.netboxapp.com"
-    netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
+    netbox_token: "{{ netbox_token }}"
     output_file: "/home/user1/reports/devices.html"
     target_host: "node3"  # Replace with your target host
 
