@@ -1,0 +1,105 @@
+---
+- name: Fetch configurations from NetBox and push to GitHub
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - ansible.builtin
+  vars:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    output_file: "/tmp/netbox_configurations.json"
+    target_host: "node3"  # Replace with your target host
+    git_repo_url: "https://github.com/ayoemman/netboxinventory_1.git"  # Replace with your GitHub repository URL
+    git_branch: "main"  # Replace with your desired branch
+    git_user_name: "{{ git_user_name }}"
+    git_user_email: "{{ git_user_email }}"
+
+  tasks:
+    - name: Fetch devices from NetBox
+      uri:
+        url: "{{ netbox_url }}/api/dcim/devices/"
+        method: GET
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+        return_content: yes
+        validate_certs: no  # Set to 'yes' for production
+      register: devices_response
+      failed_when: devices_response.status != 200
+
+    - name: Fetch sites from NetBox
+      uri:
+        url: "{{ netbox_url }}/api/dcim/sites/"
+        method: GET
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+        return_content: yes
+        validate_certs: no  # Set to 'yes' for production
+      register: sites_response
+      failed_when: sites_response.status != 200
+
+    - name: Fetch racks from NetBox
+      uri:
+        url: "{{ netbox_url }}/api/dcim/racks/"
+        method: GET
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+        return_content: yes
+        validate_certs: no  # Set to 'yes' for production
+      register: racks_response
+      failed_when: racks_response.status != 200
+
+    - name: Save configurations to JSON file
+      copy:
+        content: |
+          {
+            "devices": {{ devices_response.content | to_nice_json }},
+            "sites": {{ sites_response.content | to_nice_json }},
+            "racks": {{ racks_response.content | to_nice_json }}
+          }
+        dest: "{{ output_file }}"
+        mode: '0644'
+      register: json_save_result
+      failed_when: json_save_result is not defined
+
+    - name: Debug JSON save result
+      debug:
+        var: json_save_result
+
+    - name: Ensure repository is cloned
+      git:
+        repo: "{{ git_repo_url }}"
+        dest: /tmp/repo
+        version: "{{ git_branch }}"
+        update: yes
+      register: git_clone_result
+
+    - name: Copy JSON file to repository directory
+      copy:
+        src: "{{ output_file }}"
+        dest: /tmp/repo/netbox_configurations.json
+      register: copy_json_result
+
+    - name: Debug copy JSON file result
+      debug:
+        var: copy_json_result
+
+    - name: Configure git user
+      command:
+        cmd: |
+          git config --global user.name "{{ git_user_name }}"
+          git config --global user.email "{{ git_user_email }}"
+      delegate_to: localhost
+
+    - name: Add and commit changes to GitHub
+      command:
+        cmd: |
+          cd /tmp/repo
+          git add netbox_configurations.json
+          git commit -m "Update NetBox configurations" --allow-empty
+          git push origin "{{ git_branch }}"
+      delegate_to: localhost
+      register: git_commit_result
+
+    - name: Debug Git commit result
+      debug:
+        var: git_commit_result
