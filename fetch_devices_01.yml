@@ -24,16 +24,19 @@
           Authorization: "Token {{ netbox_token }}"
         return_content: yes
       register: netbox_response
+      failed_when: netbox_response.status != 200
 
     - name: Debug NetBox devices response
       debug:
         var: netbox_response.json.results
+      failed_when: netbox_response.json is not defined or netbox_response.json.results is not defined
 
     - name: Save NetBox devices to a JSON file
       copy:
         content: "{{ netbox_response.content }}"
         dest: "/tmp/netbox_devices.json"
         mode: '0644'
+      failed_when: netbox_response.content is not defined
 
     - name: Ensure permanent directory exists
       file:
@@ -43,6 +46,8 @@
 
     - name: Move JSON file to a permanent location
       command: mv /tmp/netbox_devices.json /home/user1/netbox_data/netbox_devices.json
+      failed_when: result.rc != 0
+      register: result
 
     - name: Debug the devices variable before template
       debug:
@@ -54,6 +59,6 @@
         dest: "{{ output_file }}"
       vars:
         devices: "{{ netbox_response.json.results }}"
-        register: template_result
-
+      register: template_result
+      failed_when: template_result is failed
 
