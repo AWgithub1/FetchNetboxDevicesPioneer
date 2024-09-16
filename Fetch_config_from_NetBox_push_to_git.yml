@@ -31,39 +31,33 @@
         headers:
           Authorization: "Token {{ netbox_token }}"
         return_content: yes
-        validate_certs: no  # Set to 'yes' for production
       register: netbox_sites
-      failed_when: devices_response.status != 200
 
     - name: Fetch devices from NetBox
       uri:
-        url: "{{ netbox_url }}/api/dcim/devices/"
+        url: "{{ netbox_api_url }}dcim/devices/"
         method: GET
         headers:
           Authorization: "Token {{ netbox_token }}"
         return_content: yes
-        validate_certs: no  # Set to 'yes' for production
-      register: devices_response
-      failed_when: devices_response.status != 200
+      register: netbox_devices
 
     - name: Fetch racks from NetBox
       uri:
-        url: "{{ netbox_url }}/api/dcim/racks/"
+        url: "{{ netbox_api_url }}dcim/racks/"
         method: GET
         headers:
           Authorization: "Token {{ netbox_token }}"
         return_content: yes
-        validate_certs: no  # Set to 'yes' for production
-      register: racks_response
-      failed_when: racks_response.status != 200
+      register: netbox_racks
 
     - name: Save configurations to JSON file
       copy:
         content: |
           {
-            "devices": {{ devices_response.content | to_nice_json }},
-            "sites": {{ sites_response.content | to_nice_json }},
-            "racks": {{ racks_response.content | to_nice_json }}
+            "devices": {{ netbox_sites.content | to_nice_json }},
+            "sites": {{ netbox_devices.content | to_nice_json }},
+            "racks": {{ netbox_racks.content | to_nice_json }}
           }
         dest: "{{ output_dir }}"
         mode: '0644'
