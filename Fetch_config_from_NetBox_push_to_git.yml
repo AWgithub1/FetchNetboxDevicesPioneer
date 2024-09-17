@@ -1,7 +1,7 @@
 ---
 - name: Fetch configurations from NetBox and push to GitHub
   hosts: localhost
-  gather_facts: no
+  gather_facts: yes
   vars:
     output_dir: "/home/user1/netbox_data"
     git_repo_path: "/home/user1/netbox_fetch_push/"
