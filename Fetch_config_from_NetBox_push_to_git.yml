@@ -5,7 +5,8 @@
   vars:
     output_dir: "/home/user1/netbox_data"
     git_repo_path: "/home/user1/netbox_fetch_push/"
-    current_date: "{{ ansible_date_time.date | replace('-', '') }}"
+    current_date: "{{ ansible_date_time.date | replace('-', '') }}" # Format as YYYYMMDD
+    current_time: "{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}"  # Format as HHMM
 
   tasks:
     - name: Ensure output directory exists
@@ -60,7 +61,7 @@
             "sites": {{ netbox_devices.content | to_nice_json }},
             "racks": {{ netbox_racks.content | to_nice_json }}
           }
-        dest: "{{ output_dir }}/configs_{{ current_date }}.json"
+        dest: "{{ output_dir }}/configs_{{ current_date }}_{{ current_time }}.json"
         mode: '0644'
       register: json_save_result
       failed_when: json_save_result is not defined
