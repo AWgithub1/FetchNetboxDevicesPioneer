@@ -13,7 +13,7 @@
   tasks:
     - name: Ensure the /home/user1/reports directory exists on target host
       file:
-        path: /home/user1/reports
+        path: /home/user13/reports
         state: directory
         mode: '0755'
       delegate_to: "{{ target_host }}"
@@ -75,7 +75,7 @@
 
     - name: Ensure permanent directory exists on target host
       file:
-        path: /home/user1/netbox_data
+        path: /home/user13/netbox_data
         state: directory
         mode: '0755'
       delegate_to: "{{ target_host }}"
@@ -124,7 +124,7 @@
 
     - name: Verify HTML file creation
       stat:
-        path: /home/user1/reports/netbox_configurations.html
+        path: /home/user13/reports/netbox_configurations.html
       register: html_file_check
       delegate_to: "{{ target_host }}"
 
@@ -134,7 +134,7 @@
 
     - name: Verify netbox_data directory creation
       stat:
-        path: /home/user1/netbox_data
+        path: /home/user13/netbox_data
       register: netbox_data_dir_check
       delegate_to: "{{ target_host }}"
 
@@ -144,7 +144,7 @@
 
     - name: Verify JSON file move
       stat:
-        path: /home/user1/netbox_data/netbox_configurations.json
+        path: /home/user13/netbox_data/netbox_configurations.json
       register: json_file_check
       delegate_to: "{{ target_host }}"
 
