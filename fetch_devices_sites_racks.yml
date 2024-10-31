@@ -11,7 +11,7 @@
     target_host: "user1.bigwow.local"  # Replace with your target host
 
   tasks:
-    - name: Ensure the /home/user1/reports directory exists on target host
+    - name: Ensure the /home/user13/reports directory exists on target host
       file:
         path: /home/user13/reports
         state: directory
@@ -97,7 +97,7 @@
         var: copy_json_result
 
     - name: Move JSON file to a permanent location on target host
-      command: mv /tmp/netbox_configurations.json /home/user1/netbox_data/netbox_configurations.json
+      command: mv /tmp/netbox_configurations.json /home/user13/netbox_data/netbox_configurations.json
       register: move_json_result
       failed_when: move_json_result.rc != 0
       delegate_to: "{{ target_host }}"
