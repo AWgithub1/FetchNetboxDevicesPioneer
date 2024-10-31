@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: yes
   vars:
-    output_dir: "/home/user1/netbox_data"
+    output_dir: "/home/user13/netbox_data"
     git_repo_path: "/home/user1/netbox_fetch_push/"
     current_date: "{{ ansible_date_time.date | replace('-', '') }}" # Format as YYYYMMDD
     current_time: "{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}"  # Format as HHMM
@@ -28,7 +28,7 @@
 
     - name: Fetch sites from NetBox
       uri:
-        url: "{{ netbox_api_url }}dcim/sites/"
+        url: "{{ netbox_api_url }}/dcim/sites/"
         method: GET
         headers:
           Authorization: "Token {{ netbox_token }}"
@@ -37,7 +37,7 @@
 
     - name: Fetch devices from NetBox
       uri:
-        url: "{{ netbox_api_url }}dcim/devices/"
+        url: "{{ netbox_api_url }}/dcim/devices/"
         method: GET
         headers:
           Authorization: "Token {{ netbox_token }}"
@@ -46,7 +46,7 @@
 
     - name: Fetch racks from NetBox
       uri:
-        url: "{{ netbox_api_url }}dcim/racks/"
+        url: "{{ netbox_api_url }}/dcim/racks/"
         method: GET
         headers:
           Authorization: "Token {{ netbox_token }}"
